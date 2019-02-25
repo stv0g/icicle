@@ -1,8 +1,9 @@
 LPF      = boards/$(BOARD).lpf
 FREQ_PLL = 80
 
-progmem_syn.hex:
-	touch $@
+ifeq ($(PROGMEM),ram)
+SRC += progmem.hex
+endif
 
 $(PLL):
 	ecppll -i $(FREQ_OSC) -o $(FREQ_PLL) -f $@
@@ -10,7 +11,7 @@ $(PLL):
 $(ASC_SYN): $(JSON) $(LPF)
 	nextpnr-ecp5 $(QUIET) --$(DEVICE) --speed $(SPEED) --package $(PACKAGE) --json $< --lpf $(LPF) --freq $(FREQ_PLL) --textcfg $@
 
-$(ASC): $(ASC_SYN) progmem_syn.hex progmem.hex
+$(ASC): $(ASC_SYN)
 	cp $< $@
 
 $(BIN) $(SVF): $(ASC)

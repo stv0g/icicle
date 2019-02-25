@@ -6,6 +6,10 @@ else
 FREQ_PLL = 48
 endif
 
+ifeq ($(PROGMEM),ram)
+SRC += progmem_syn.hex progmem.hex
+endif
+
 progmem_syn.hex:
 	icebram -g 32 2048 > $@
 
@@ -20,10 +24,11 @@ $(ASC_SYN): $(JSON) $(PCF)
 	nextpnr-ice40 $(QUIET) --$(SPEED)$(DEVICE) --package $(PACKAGE) --json $< --pcf $(PCF) --freq $(FREQ_PLL) --asc $@
 endif
 
-$(ASC): $(ASC_SYN) progmem_syn.hex progmem.hex
 ifeq ($(PROGMEM),ram)
+$(ASC): $(ASC_SYN) progmem_syn.hex progmem.hex
 	icebram progmem_syn.hex progmem.hex < $< > $@
 else
+$(ASC): $(ASC_SYN)
 	cp $< $@
 endif
 
